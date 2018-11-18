@@ -4,17 +4,21 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"sort"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 )
 
 func main() {
+
+	// order matters between these!
+
 	c := colly.NewCollector(
 		colly.AllowedDomains("lists.ceph.com"),
 	)
 
-//	listoflinks := []
+	m := make(map[string]string)
 
 	// Callback for when a scraped page contains an article element
 	c.OnHTML("article", func(e *colly.HTMLElement) {
@@ -39,26 +43,37 @@ func main() {
 		}
 	})
 
+	parentthread := ""
 	// Callback for links on scraped pages
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		// Extract the linked URL from the anchor tag
 		link := e.Attr("href")
 		linksplit := (strings.Split(link, "/"))
 		lastlink := linksplit[0]
+		if strings.Contains(link, "thread.html") {
+			// Here we store the parentthread in a variable. Later used to make the fullinktothethread
+			// http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-July/0123456.html
+			parentthread = link
+		}
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
 				if strings.Contains(e.Text, "RGW") {
-					fmt.Println(lastlink)
-					fmt.Println(e.Text)
+					// only save last link for a thread
+					// TODO: save all?
+					// parentthread is at this point in time the full URL to the thread.html for this month
+					parentthreadelementzero := strings.Split(parentthread, "/")[0]
+					fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink
+					// with a \n at the end to make the output a bit more readable
+					// fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink + "\n"
+					m[e.Text] = fulllinktothethread
 				}
 			}
 		}
-			// Only if from 2018
-			// https://gobyexample.com/if-else
+			// TODO: Only this and last year?
 			if strings.Contains(link, "2018") {
-				// Only Thread (from list of Months page) and ceph-users (from thread page)
+				// Only Thread (from list of Months page)
 				// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
-				if strings.Contains(e.Text, "[ceph-users]"); strings.Contains(e.Text, "[ Thread ]") {
+				if strings.Contains(e.Text, "[ Thread ]") {
 					c.Visit(e.Request.AbsoluteURL(link))
 				}
 			}
@@ -78,4 +93,24 @@ func main() {
 	})
 
 	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
+
+	// At this point we have a map (m) of the good stuff. Now to make a summary?
+	// fmt.Println(m)
+	// https://stackoverflow.com/questions/1841443/iterating-over-all-the-keys-of-a-map
+	// https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys
+	// First iterate over keys and put them in a list and then sort them
+	keys := make([]string, 0, len(m))
+	for l, _ := range m {
+		keys = append(keys, l)
+	}
+	sort.Strings(keys)
+	// Now we have a sorted list called keys. It's sorted on the Thread Names. Would be nicer with sorted on the URL and the date..
+	// fmt.Println(keys)
+	// Could this data structure be better perhaps?
+	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
+	for k, _ := range m {
+		aHREF := "<a href='" + m[k] + "'>"
+		fmt.Println(aHREF + k + "</a><br>")
+	}
+
 }
