@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/martbhell/mailman-summarizer.svg?branch=master)](https://travis-ci.com/martbhell/mailman-summarizer)
+
 mailman-summarizer
 ==========
 
