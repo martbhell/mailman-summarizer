@@ -11,8 +11,10 @@ import (
 
 func main() {
 	c := colly.NewCollector(
-		colly.AllowedDomains("emojipedia.org"),
+		colly.AllowedDomains("lists.ceph.com"),
 	)
+
+//	listoflinks := []
 
 	// Callback for when a scraped page contains an article element
 	c.OnHTML("article", func(e *colly.HTMLElement) {
@@ -41,8 +43,29 @@ func main() {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		// Extract the linked URL from the anchor tag
 		link := e.Attr("href")
-		// Have our crawler visit the linked URL
-		c.Visit(e.Request.AbsoluteURL(link))
+		linksplit := (strings.Split(link, "/"))
+		lastlink := linksplit[0]
+		if strings.ContainsAny(lastlink, "0123456789") {
+			if strings.Contains(lastlink, ".html") {
+				if strings.Contains(e.Text, "RGW") {
+					fmt.Println(lastlink)
+					fmt.Println(e.Text)
+				}
+			}
+		}
+			// Only if from 2018
+			// https://gobyexample.com/if-else
+			if strings.Contains(link, "2018") {
+				// Only Thread (from list of Months page) and ceph-users (from thread page)
+				// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
+				if strings.Contains(e.Text, "[ceph-users]"); strings.Contains(e.Text, "[ Thread ]") {
+					c.Visit(e.Request.AbsoluteURL(link))
+				}
+			}
+	})
+
+	c.OnHTML("title", func(e *colly.HTMLElement) {
+	    fmt.Println(e.Text)
 	})
 
 	c.Limit(&colly.LimitRule{
@@ -54,5 +77,5 @@ func main() {
 		fmt.Println("Visiting", r.URL.String())
 	})
 
-	c.Visit("https://emojipedia.org")
+	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
 }

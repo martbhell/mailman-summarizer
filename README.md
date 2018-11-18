@@ -13,7 +13,34 @@ General Idea:
    - To stdout
    - JSON
 
-Ideas
+Usage:
+-------
+
+installing go:
+
+ export GOPATH=$HOME/go
+
+dependencies:
+
+ go get -u github.com/PuerkitoBio/goquery
+ go get -u github.com/gocolly/colly/...
+
+building:
+
+ go build
+
+running: 
+
+ ./mailman-summarizer
+
+
+Sources
 =====
+
+ - https://benjamincongdon.me/blog/2018/03/01/Scraping-the-Web-in-Golang-with-Colly-and-Goquery/
+ - https://github.com/bcongdon/colly-example
+
+https://github.com/PuerkitoBio/goquery
+https://github.com/gocolly/colly
 
 License: MIT
