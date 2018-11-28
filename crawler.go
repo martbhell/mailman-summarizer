@@ -99,25 +99,18 @@ func main() {
 
 	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
 
-	// At this point we have a map (m) of the good stuff. Now to make a summary?
-	// fmt.Println(m)
-	// https://stackoverflow.com/questions/1841443/iterating-over-all-the-keys-of-a-map
-	// https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys
-	// First iterate over keys and put them in a list and then sort them
-// 	keys := make([]string, 0, len(m))
-// 	for l, _ := range m {
-// 		keys = append(keys, l)
-// 	}
-// 	sort.Strings(keys)
-
         // Data structure:
 	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
 	fmt.Println(data)
 	for o, _ := range data {
 		// first key level is YYYY-month
+		// o == 2018-November
 		fmt.Println(o)
-		for k, _ := range o {
-			fmt.Println(o[k])
+		for k, _ := range data[o] {
+			// k == thread title
+			fmt.Println(k)
+			// data[o][k] == thread full URL
+			fmt.Println(data[o][k])
 		}
 	}
 
