@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"sort"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -17,8 +16,9 @@ func main() {
 	c := colly.NewCollector(
 		colly.AllowedDomains("lists.ceph.com"),
 	)
-
-	m := make(map[string]string)
+	// https://stackoverflow.com/questions/44305617/nested-maps-in-golang
+	// in python this would look like data["November-2018"]["ceph-users title"] = "http://link.to.thread"
+	data := make(map[string]map[string]string)
 
 	// Callback for when a scraped page contains an article element
 	c.OnHTML("article", func(e *colly.HTMLElement) {
@@ -51,7 +51,9 @@ func main() {
 		linksplit := (strings.Split(link, "/"))
 		lastlink := linksplit[0]
 		if strings.Contains(link, "thread.html") {
+			// http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
 			// Here we store the parentthread in a variable. Later used to make the fullinktothethread
+			// it should be something like "2018-November"
 			// http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-July/0123456.html
 			parentthread = link
 		}
@@ -65,7 +67,9 @@ func main() {
 					fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink
 					// with a \n at the end to make the output a bit more readable
 					// fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink + "\n"
-					m[e.Text] = fulllinktothethread
+					// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
+					if data[parentthreadelementzero] == nil { data[parentthreadelementzero] = map[string]string{} }
+					data[parentthreadelementzero][e.Text] = fulllinktothethread
 				}
 			}
 		}
@@ -83,6 +87,7 @@ func main() {
 	    fmt.Println(e.Text)
 	})
 
+	// This piece adds dela so we are being nice on the Internet
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
 		RandomDelay: 1 * time.Second,
@@ -99,18 +104,21 @@ func main() {
 	// https://stackoverflow.com/questions/1841443/iterating-over-all-the-keys-of-a-map
 	// https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys
 	// First iterate over keys and put them in a list and then sort them
-	keys := make([]string, 0, len(m))
-	for l, _ := range m {
-		keys = append(keys, l)
-	}
-	sort.Strings(keys)
-	// Now we have a sorted list called keys. It's sorted on the Thread Names. Would be nicer with sorted on the URL and the date..
-	// fmt.Println(keys)
-	// Could this data structure be better perhaps?
-	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
-	for k, _ := range m {
-		aHREF := "<a href='" + m[k] + "'>"
-		fmt.Println(aHREF + k + "</a><br>")
+// 	keys := make([]string, 0, len(m))
+// 	for l, _ := range m {
+// 		keys = append(keys, l)
+// 	}
+// 	sort.Strings(keys)
+
+        // Data structure:
+	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
+	fmt.Println(data)
+	for o, _ := range data {
+		// first key level is YYYY-month
+		fmt.Println(o)
+		for k, _ := range o {
+			fmt.Println(o[k])
+		}
 	}
 
 }
