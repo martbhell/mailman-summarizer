@@ -6,9 +6,11 @@ import (
 	"strings"
 	"time"
 	"flag" // for CLI parsing
+	"log" // nice logger
 
 	"github.com/PuerkitoBio/goquery" // for scraping
 	"github.com/gocolly/colly" // for scraping
+	"github.com/gorilla/feeds" // making RSS
 )
 
 func main() {
@@ -156,20 +158,68 @@ func main() {
 
 	// 04 Make RSS
 	if *rss == true {
+		// https://github.com/gorilla/feeds
+		now := time.Now()
+		feed := &feeds.Feed{
+		      Title:       "mailman-summarizer",
+		      Link:        &feeds.Link{Href: "https://guldmyr.com/blog"},
+		      Description: "discussion about tech",
+		      Author:      &feeds.Author{Name: "Johan Guldmyr", Email: "martbhell+mailman@gmail.com"},
+		      Created:     now,
+		}
 		for o, _ := range keys {
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (num of elements)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
-			fmt.Print("<h1>")
-			fmt.Print(keys[o])
-			fmt.Println("</h1>")
-			for k, _ := range data[keys[o]] {
-				aHREF := "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
-				// k == thread title
-				// data[o][k] == thread full URL
-				fmt.Print(aHREF)
+
+		        thelinks := ""
+				// fmt.Print("<h1>")
+				// fmt.Print(keys[o])
+				// fmt.Println("</h1>")
+				for k, _ := range data[keys[o]] {
+					thelinks = thelinks + "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
+					// k == thread title
+					// data[o][k] == thread full URL
+				}
+			feed.Items = []*feeds.Item{
+
+                                // &feeds.Item{
+                                //     Title:       keys[o],
+                                //     Link:        &feeds.Link{Href: "https://guldmyr.com/blog"},
+                                //     Description: "A discussion on controlled parallelism in golang",
+                                //     Author:      &feeds.Author{Name: "Jason Moiron", Email: "jmoiron@jmoiron.net"},
+                                //     Created:     now,
+                                // },
+
+				// TODO: Created/Updated could be set to 1st of each month for previous months
+				//  	and time.Now() for current month. Maybe this would update the RSS feed?
+                                &feeds.Item{
+                                    Title:       keys[o],
+                                    Link:        &feeds.Link{Href: "https://guldmyr.com/blog"},
+                                    Description: thelinks,
+                                    Author:      &feeds.Author{Name: "CEPH Community", Email: "ceph mailing list"},
+                                    Created:     now,
+                                },
+
 			}
 		}
+
+		atom, err := feed.ToAtom()
+		if err != nil {
+		    log.Fatal(err)
+		}
+
+		rss, err := feed.ToRss()
+		if err != nil {
+		    log.Fatal(err)
+		}
+
+		json, err := feed.ToJSON()
+		if err != nil {
+		    log.Fatal(err)
+		}
+
+		fmt.Println(atom, "\n", rss, "\n", json)
 	}
 
 }
