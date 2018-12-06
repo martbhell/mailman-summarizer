@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 func main() {
 
 	// order matters between these!
+	// 01 first we scrape a website
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("lists.ceph.com"),
@@ -54,7 +56,6 @@ func main() {
 			// http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
 			// Here we store the parentthread in a variable. Later used to make the fullinktothethread
 			// it should be something like "2018-November"
-			// http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-July/0123456.html
 			parentthread = link
 		}
 		if strings.ContainsAny(lastlink, "0123456789") {
@@ -66,7 +67,6 @@ func main() {
 					parentthreadelementzero := strings.Split(parentthread, "/")[0]
 					fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink
 					// with a \n at the end to make the output a bit more readable
-					// fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink + "\n"
 					// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
 					if data[parentthreadelementzero] == nil { data[parentthreadelementzero] = map[string]string{} }
 					data[parentthreadelementzero][e.Text] = fulllinktothethread
@@ -84,7 +84,7 @@ func main() {
 	})
 
 	c.OnHTML("title", func(e *colly.HTMLElement) {
-	    fmt.Println(e.Text)
+	    // fmt.Println(e.Text)
 	})
 
 	// This piece adds dela so we are being nice on the Internet
@@ -94,23 +94,44 @@ func main() {
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL.String())
+//		fmt.Println("Visiting", r.URL.String())
 	})
 
 	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
 
+	// 02 Loop over the data and make somethin
+
         // Data structure:
 	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
-	fmt.Println(data)
+//	fmt.Println(data)
+
+
+	// https://stackoverflow.com/questions/1841443/iterating-over-all-the-keys-of-a-map
+	// https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys
+	// First iterate over keys and put them in a list and then sort them
+	keys := make([]string, 0, len(data))
+	for l, _ := range data {
+		keys = append(keys, l)
+	}
+	sort.Strings(keys)
+	fmt.Println(keys)
+	// Now we have a sorted list called keys. It's sorted on the Thread Names. Would be nicer with sorted on the URL and the date..
+	// fmt.Println(keys)
+	// Could this data structure be better perhaps?
+	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
+
 	for o, _ := range data {
 		// first key level is YYYY-month
 		// o == 2018-November
-		fmt.Println(o)
+		// comes out unsorted
+		fmt.Print("<h1>")
+		fmt.Print(o)
+		fmt.Println("</h1>")
 		for k, _ := range data[o] {
+			aHREF := "<a href='" + data[o][k] + "'>" + k + "</a><br>"
 			// k == thread title
-			fmt.Println(k)
 			// data[o][k] == thread full URL
-			fmt.Println(data[o][k])
+			fmt.Print(aHREF)
 		}
 	}
 
