@@ -57,6 +57,22 @@ func main() {
 			// Here we store the parentthread in a variable. Later used to make the fullinktothethread
 			// it should be something like "2018-November"
 			parentthread = link
+			parsemonth := (strings.Split(parentthread, "/")[0])
+			onlymonth := (strings.Split(parsemonth, "-")[1])
+			onlyyear := (strings.Split(parsemonth, "-")[0])
+			if onlymonth == "January" { month := "01" ; yearmonth := onlyyear + " " + month ; fmt.Println(yearmonth)}
+			if onlymonth == "February" { month := "02" ; fmt.Println(onlyyear + "-" + month)}
+			if onlymonth == "March" { month := "03"    ; fmt.Println(onlyyear + "-" + month)          }
+			if onlymonth == "April" { month := "04"    ; fmt.Println(onlyyear + "-" + month)          }
+			if onlymonth == "May" { month := "05"      ; fmt.Println(onlyyear + "-" + month)      }
+			if onlymonth == "June" { month := "06"     ; fmt.Println(onlyyear + "-" + month)      }
+			if onlymonth == "July" { month := "07"     ; fmt.Println(onlyyear + "-" + month)      }
+			if onlymonth == "August" { month := "08"   ; fmt.Println(onlyyear + "-" + month)      }
+			if onlymonth == "September" { month := "09"; fmt.Println(onlyyear + "-" + month)    }
+			if onlymonth == "October" { month := "10"  ; fmt.Println(onlyyear + "-" + month)  }
+			if onlymonth == "November" { month := "11" ; fmt.Println(onlyyear + "-" + month)  }
+			if onlymonth == "December" { month := "12" ; fmt.Println(onlyyear + "-" + month)  }
+			// fmt.Println(time.Parse(parsemonth, "2018-November-01"))
 		}
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
@@ -75,7 +91,7 @@ func main() {
 		}
 			// TODO: Only this and last year?
 			if strings.Contains(link, "2018") {
-				// Only Thread (from list of Months page)
+				// Only Thread (from list of Months page): http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
 				// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
 				if strings.Contains(e.Text, "[ Thread ]") {
 					c.Visit(e.Request.AbsoluteURL(link))
