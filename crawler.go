@@ -64,20 +64,18 @@ func main() {
 					// only save last link for a thread
 					// TODO: save all?
 					// parentthread is at this point in time the full URL to the thread.html for this month
+					// we split out yearmonth so we get: "2018-November"
+		                        yearmonth := (strings.Split(parentthread, "/")[0])
+					// we get two values from time.Parse(). The _ is where we put the second value
+					// parsedmonth should look like: 2018-11-01 00:00:00 +0000 UTC
+					parsedmonth, _ := time.Parse("2006-January", yearmonth)
 
-		                        parsemonth := (strings.Split(parentthread, "/")[0])
-		                        onlymonth := (strings.Split(parsemonth, "-")[1])
-		                        onlyyear := (strings.Split(parsemonth, "-")[0])
-					yearandmonth := onlyyear + "-" + onlymonth
-					fmt.Println(yearandmonth)
-					fmt.Println(time.Parse("2006-January", yearandmonth))
-
-					parentthreadelementzero := strings.Split(parentthread, "/")[0]
-					fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + parentthreadelementzero + "/" + lastlink
-					// with a \n at the end to make the output a bit more readable
+					fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + yearmonth + "/" + lastlink
+					// key in the map of maps is the string of parsedmonth
+					datakey := parsedmonth.String()
 					// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
-					if data[parentthreadelementzero] == nil { data[parentthreadelementzero] = map[string]string{} }
-					data[parentthreadelementzero][e.Text] = fulllinktothethread
+					if data[datakey] == nil { data[datakey] = map[string]string{} }
+					data[datakey][e.Text] = fulllinktothethread
 				}
 			}
 		}
@@ -93,9 +91,10 @@ func main() {
 
 	c.OnHTML("title", func(e *colly.HTMLElement) {
 	    // fmt.Println(e.Text)
+	    // used to print the HTML <title>
 	})
 
-	// This piece adds dela so we are being nice on the Internet
+	// This piece adds delay so we are being nice on the Internet
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
 		RandomDelay: 1 * time.Second,
@@ -103,10 +102,14 @@ func main() {
 
 	c.OnRequest(func(r *colly.Request) {
 //		fmt.Println("Visiting", r.URL.String())
+// from demo, used to print which URL our scraper visits
 	})
 
 	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
 
+
+	//////////////// 
+	// TODO: split out into another class/method/function?
 	// 02 Loop over the data and make somethin
 
         // Data structure:
@@ -122,21 +125,23 @@ func main() {
 		keys = append(keys, l)
 	}
 	sort.Strings(keys)
-	fmt.Println(keys)
+	// debug:
+	// 	fmt.Println(keys)
+	// 	for n, _ := range keys { fmt.Println(data[keys[n]]) }
 	// Now we have a sorted list called keys. It's sorted on the Thread Names. Would be nicer with sorted on the URL and the date..
-	// fmt.Println(keys)
-	// Could this data structure be better perhaps?
+	// data structure:
 	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
 
-	for o, _ := range data {
-		// first key level is YYYY-month
-		// o == 2018-November
-		// comes out unsorted
+	// for o, _ := range data {
+	for o, _ := range keys {
+		// keys is a sorted list of keys of data
+		// o == 0,1,2 etc (num of elements)
+		// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
 		fmt.Print("<h1>")
-		fmt.Print(o)
+		fmt.Print(keys[o])
 		fmt.Println("</h1>")
-		for k, _ := range data[o] {
-			aHREF := "<a href='" + data[o][k] + "'>" + k + "</a><br>"
+		for k, _ := range data[keys[o]] {
+			aHREF := "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
 			// k == thread title
 			// data[o][k] == thread full URL
 			fmt.Print(aHREF)
