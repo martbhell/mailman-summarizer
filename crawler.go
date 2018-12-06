@@ -5,9 +5,10 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"flag" // for CLI parsing
 
-	"github.com/PuerkitoBio/goquery"
-	"github.com/gocolly/colly"
+	"github.com/PuerkitoBio/goquery" // for scraping
+	"github.com/gocolly/colly" // for scraping
 )
 
 func main() {
@@ -110,7 +111,7 @@ func main() {
 
 	//////////////// 
 	// TODO: split out into another class/method/function?
-	// 02 Loop over the data and make somethin
+	// 02 Loop over the data 
 
         // Data structure:
 	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
@@ -132,19 +133,42 @@ func main() {
 	// data structure:
 	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
 
-	// for o, _ := range data {
-	for o, _ := range keys {
-		// keys is a sorted list of keys of data
-		// o == 0,1,2 etc (num of elements)
-		// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
-		fmt.Print("<h1>")
-		fmt.Print(keys[o])
-		fmt.Println("</h1>")
-		for k, _ := range data[keys[o]] {
-			aHREF := "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
-			// k == thread title
-			// data[o][k] == thread full URL
-			fmt.Print(aHREF)
+	// CLI parsing: https://gobyexample.com/command-line-flags
+	rss := flag.Bool("rss", false, "Set if you want RSS output instead of HTML")
+	flag.Parse()
+
+	// 03 Make HTML
+	// bool vs *bool
+	if *rss == false {
+		for o, _ := range keys {
+			// keys is a sorted list of keys of data
+			// o == 0,1,2 etc (index of element)
+			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
+			fmt.Println("<h1>" + keys[o] + "</h1>")
+			for k, _ := range data[keys[o]] {
+				aHREF := "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
+				// k == thread title
+				// data[o][k] == thread full URL
+				fmt.Print(aHREF)
+			}
+		}
+	}
+
+	// 04 Make RSS
+	if *rss == true {
+		for o, _ := range keys {
+			// keys is a sorted list of keys of data
+			// o == 0,1,2 etc (num of elements)
+			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
+			fmt.Print("<h1>")
+			fmt.Print(keys[o])
+			fmt.Println("</h1>")
+			for k, _ := range data[keys[o]] {
+				aHREF := "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
+				// k == thread title
+				// data[o][k] == thread full URL
+				fmt.Print(aHREF)
+			}
 		}
 	}
 
