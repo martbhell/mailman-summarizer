@@ -90,10 +90,16 @@ func main() {
 				}
 			}
 		}
-			// Only this and last year
+			// Only this and last year and last last year
+			// Because this was made in 2018 wanted to also have 2017 in the entries.
+			//  But don't want to delete entries when a year changes.
+			// TODO: In 2019 we can use lastlastyear..
+			//  If two.12 years is not enough - only produce entries from posts starting from 2017
+			//  perhaps check if all the entries in a list ( range(2017, now.Year()) ) maybe is in the link?
 			thisyear := strconv.Itoa(time.Now().Year())
 			lastyear := strconv.Itoa(time.Now().Year() - 1)
-			if strings.Contains(link, thisyear) || strings.Contains(link, lastyear) {
+			// lastlastyear := strconv.Itoa(time.Now().Year() - 2)
+			if strings.Contains(link, thisyear) || strings.Contains(link, lastyear) || strings.Contains(link, "2017") {
 				// Only Thread (from list of Months page): http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
 				// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
 				if strings.Contains(e.Text, "[ Thread ]") {
