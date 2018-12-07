@@ -20,30 +20,48 @@ Usage:
 
 installing go:
 
+<pre>
  export GOPATH=$HOME/go
+</pre>
 
 dependencies:
+<pre>
 
  go get -u github.com/PuerkitoBio/goquery
  go get -u github.com/gocolly/colly/...
  go get -u github.com/gorilla/feeds/...
+</pre>
 
 building:
 
+<pre>
  go build
+</pre>
 
 running: 
+<pre>
 
  ./mailman-summarizer -h
+</pre>
 
 
-Example Output in https://theoldreader.com
+Example Output if subscribing to the feed in https://theoldreader.com
 ----------------
 
 ![Oldreader](oldreader_output.png)
 
+Deployment
+----------
+
+This repo uses travis and a cronjob to run the script and deploy the XML to google cloud object store
+
+ - needs a google cloud project, a service account, a key in json, a key encrypted with travis
+ - then needs the gsutil in the travis build env
+
 Sources
 =====
+
+Started as a fork of colly-example.
 
  - https://benjamincongdon.me/blog/2018/03/01/Scraping-the-Web-in-Golang-with-Colly-and-Goquery/
  - https://github.com/bcongdon/colly-example

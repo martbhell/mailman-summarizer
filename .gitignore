@@ -13,4 +13,8 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
-mailman-*
+# the JSON file with the GCS credentials
+mailman-*.json
+
+# the compiled software
+mailman-summarizer
