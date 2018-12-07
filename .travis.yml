@@ -22,7 +22,7 @@ before_install:
 install:
 - gcloud config set project mailman-summarizer
 script:
-- go build -x
+- go build
 deploy:
 - provider: script
   script: bash tools/deploy.sh staging-ceph-rgw-users
