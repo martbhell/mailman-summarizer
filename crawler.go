@@ -185,7 +185,7 @@ func main() {
 			dateofthreadsinTime, _ := time.Parse("2006-01-02 15:04:05 -0700 MST", keys[o])
 			// for the current month we set the PubDate field to when the script was run
 			updatedfield := dateofthreadsinTime
-			if dateofthreadsinTime.Month() == now.Month() {
+			if dateofthreadsinTime.Month() == now.Month() && dateofthreadsinTime.Year() == now.Year() {
 				updatedfield = now
 			}
 

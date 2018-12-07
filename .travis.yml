@@ -24,6 +24,8 @@ install:
 script:
 - go build
 deploy:
+# deploy stage cleans up in the repo, so for example stuff done in build phase is removed..
+#
 #- provider: script
 #  script: bash tools/deploy.sh staging-ceph-rgw-users
 #  on:
