@@ -183,20 +183,19 @@ func main() {
 				// k == thread title
 				// data[o][k] == thread full URL
 			}
-			// ??
-			feed.Items = []*feeds.Item{
+			// Do an Add() instead of defining Items every Month
+			feed.Add(&feeds.Item{
 
 				// TODO: Created/Updated could be set to 1st of each month for previous months
 				//  	and time.Now() for current month. Maybe this would update the RSS feed?
-                                &feeds.Item{
                                     Title:       "CEPH Threads for " + keys[o],
-                                    Link:        &feeds.Link{Href: "https://guldmyr.com/blog"},
+                                    Link:        &feeds.Link{Href: "https://guldmyr.com/"},
                                     Description: thelinks,
 				    Author:      &feeds.Author{Name: "CEPH Community", Email: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
                                     Created:     now,
                                 },
 
-			}
+			)
 		}
 
 		atom, err := feed.ToAtom()
