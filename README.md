@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/martbhell/mailman-summarizer.svg?branch=master)](https://travis-ci.com/martbhell/mailman-summarizer)
+[![Build Status](https://travis-ci.org/martbhell/mailman-summarizer.svg?branch=master)](https://travis-ci.com/martbhell/mailman-summarizer)
 
 mailman-summarizer
 ==========
