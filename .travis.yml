@@ -25,6 +25,10 @@ script:
 - go build
 deploy:
 - provider: script
-  script: gsutil stat gs://ceph-rgw-users/LICENSE
+  script: bash tools/deploy.sh staging-ceph-rgw-users
+  on:
+    branch: master
+- provider: script
+  script: bash tools/deploy.sh ceph-rgw-users
   on:
     branch: master

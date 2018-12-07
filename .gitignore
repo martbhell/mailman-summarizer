@@ -21,3 +21,5 @@ mailman-summarizer
 
 # some testing in here
 test/*
+
+feed.xml
