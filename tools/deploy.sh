@@ -8,8 +8,8 @@ fi
 
 echo "deploying to BUCKET: $BUCKET"
 gsutil stat gs://$BUCKET/LICENSE
-ls
-./mailman-summarizer -rss > feed.xml
-ls
+find ../
+./../mailman-summarizer -rss > feed.xml
+ls -l
 gsutil cp -a public-read feed.xml gs://$BUCKET/feed.xml
 
