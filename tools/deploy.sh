@@ -8,7 +8,7 @@ fi
 
 echo "deploying to BUCKET: $BUCKET"
 gsutil stat gs://$BUCKET/LICENSE
-cd .
+cd $HOME
 echo "PWD: $PWD"
 find .
 ./mailman-summarizer -rss > feed.xml
