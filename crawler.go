@@ -20,6 +20,8 @@ func main() {
         arss := flag.Bool("rss", false, "Set if you want RSS output instead of HTML")
         ajson := flag.Bool("json", false, "Set if you want JSON output instead of HTML")
         aatom := flag.Bool("atom", false, "Set if you want Atom output instead of HTML")
+	var topic string
+	flag.StringVar(&topic, "topic", "GW", "a string which the thread topic must contain")
         flag.Parse()
 
 	// order matters between these!
@@ -70,10 +72,8 @@ func main() {
 		}
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
-				// TODO: make an argument
-				if strings.Contains(e.Text, "GW") {
-					// only save last link for a thread
-					// TODO: save only first
+				// topic is an argument, defaults to "GW"
+				if strings.Contains(e.Text, topic) {
 					// parentthread is at this point in time the full URL to the thread.html for this month
 					// we split out yearmonth so we get: "2018-November"
 		                        yearmonth := (strings.Split(parentthread, "/")[0])
@@ -85,8 +85,11 @@ func main() {
 					// key in the map of maps is the string of parsedmonth
 					datakey := parsedmonth.String()
 					// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
+					// only save the link if it's empty (we should link to the first e-mail in the thread)
 					if data[datakey] == nil { data[datakey] = map[string]string{} }
-					data[datakey][e.Text] = fulllinktothethread
+					if data[datakey][e.Text] == "" {
+						data[datakey][e.Text] = fulllinktothethread
+					}
 				}
 			}
 		}
@@ -175,12 +178,10 @@ func main() {
 		// http://www.gorillatoolkit.org/pkg/feeds
 		now := time.Now()
 		// &feeds.Feed{} == ??
-		// TODO: https://validator.w3.org/feed should be valid
 		feed := &feeds.Feed{
 		      Title:       "CEPH-users GW Threads",
 		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
 		      Description: "Threads from ceph-users CEPH mailing lists with GW in the title. Generated with https://github.com/martbhell/mailman-summarizer",
-		      Author:      &feeds.Author{Name: "Johan Guldmyr" },
 		      Created:     now,
 		}
 
@@ -195,8 +196,12 @@ func main() {
 			if dateofthreadsinTime.Month() == now.Month() && dateofthreadsinTime.Year() == now.Year() {
 				updatedfield = now
 			}
+			// We make a string hex representation of updatedfield since epoch
+			//   This is used as a GUID for the item in the RSS feed to make the w3c feed validator happy
+			//   TODO: best would probably be to just link to the thread.html for that month in the mailing list web archive
+			guid := strconv.FormatInt(updatedfield.Unix(), 16)
 
-
+			// thelinks is some HTML with the threads we want to display
 		        thelinks := ""
 			for k, _ := range data[keys[o]] {
 				thelinks = thelinks + "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
@@ -205,11 +210,11 @@ func main() {
 			}
 			// Do an Add() instead of defining Items every Month
 			feed.Add(&feeds.Item{
-
                                     Title:       "CEPH GW Threads for " + keys[o],
-				    Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
+				    Link:        &feeds.Link{Href: "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid},
+				    Id:		 "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid,
                                     Description: thelinks,
-				    Author:      &feeds.Author{Name: "CEPH Community", Email: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
+				    Author:      &feeds.Author{Name: "ceph-users@lists.ceph.com (CEPH Users Mailing List)", Email: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
 				    Updated:     updatedfield,
                                 },
 
