@@ -7,6 +7,7 @@ import (
 	"time"
 	"flag" // for CLI parsing
 	"log" // nice logger
+	"strconv" // convert Int to String
 
 	"github.com/PuerkitoBio/goquery" // for scraping
 	"github.com/gocolly/colly" // for scraping
@@ -72,7 +73,7 @@ func main() {
 				// TODO: make an argument
 				if strings.Contains(e.Text, "GW") {
 					// only save last link for a thread
-					// TODO: save all?
+					// TODO: save only first
 					// parentthread is at this point in time the full URL to the thread.html for this month
 					// we split out yearmonth so we get: "2018-November"
 		                        yearmonth := (strings.Split(parentthread, "/")[0])
@@ -89,8 +90,10 @@ func main() {
 				}
 			}
 		}
-			// TODO: Only this and last year?
-			if strings.Contains(link, "2018") {
+			// Only this and last year
+			thisyear := strconv.Itoa(time.Now().Year())
+			lastyear := strconv.Itoa(time.Now().Year() - 1)
+			if strings.Contains(link, thisyear) || strings.Contains(link, lastyear) {
 				// Only Thread (from list of Months page): http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
 				// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
 				if strings.Contains(e.Text, "[ Thread ]") {
@@ -120,7 +123,7 @@ func main() {
 
 
 	//////////////// 
-	// TODO: split out into another class/method/function?
+	// TODO: split out into another class/method/function/file?
 	// 02 Loop over the data 
 
         // Data structure:
@@ -170,7 +173,7 @@ func main() {
 		      Title:       "CEPH-users GW Threads",
 		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
 		      Description: "Threads from ceph-users CEPH mailing lists with GW in the title. Generated with https://github.com/martbhell/mailman-summarizer",
-		      Author:      &feeds.Author{Name: "Johan Guldmyr", Email: "martbhell+mailman@gmail.com"},
+		      Author:      &feeds.Author{Name: "Johan Guldmyr" },
 		      Created:     now,
 		}
 
@@ -196,8 +199,6 @@ func main() {
 			// Do an Add() instead of defining Items every Month
 			feed.Add(&feeds.Item{
 
-				// TODO: Created/Updated could be set to 1st of each month for previous months
-				//  	and time.Now() for current month. Maybe this would update the RSS feed?
                                     Title:       "CEPH GW Threads for " + keys[o],
 				    Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
                                     Description: thelinks,
