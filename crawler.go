@@ -15,6 +15,12 @@ import (
 
 func main() {
 
+        // CLI parsing: https://gobyexample.com/command-line-flags
+        arss := flag.Bool("rss", false, "Set if you want RSS output instead of HTML")
+        ajson := flag.Bool("json", false, "Set if you want JSON output instead of HTML")
+        aatom := flag.Bool("atom", false, "Set if you want Atom output instead of HTML")
+        flag.Parse()
+
 	// order matters between these!
 	// 01 first we scrape a website
 
@@ -135,13 +141,9 @@ func main() {
 	// data structure:
 	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
 
-	// CLI parsing: https://gobyexample.com/command-line-flags
-	rss := flag.Bool("rss", false, "Set if you want RSS output instead of HTML")
-	flag.Parse()
-
 	// 03 Make HTML
-	// bool vs *bool
-	if *rss == false {
+	// bool vs *bool vs &bool
+	if *arss == false && *ajson == false && *aatom == false {
 		for o, _ := range keys {
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (index of element)
@@ -154,10 +156,10 @@ func main() {
 				fmt.Print(aHREF)
 			}
 		}
-	}
+	} else {
 
 	// 04 Make RSS
-	if *rss == true {
+	// if *arss == true {
 		// https://github.com/gorilla/feeds
 		// http://www.gorillatoolkit.org/pkg/feeds
 		now := time.Now()
@@ -171,8 +173,6 @@ func main() {
 		}
 
 		for o, _ := range keys {
-			fmt.Println(keys[o])
-			fmt.Println(feed)
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (num of elements)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
@@ -202,18 +202,21 @@ func main() {
 		if err != nil {
 		    log.Fatal(err)
 		}
+		// aatom, arss and ajson are CLI arguments to the executable
+		if *aatom == true { fmt.Println(atom) }
 
 		rss, err := feed.ToRss()
 		if err != nil {
 		    log.Fatal(err)
 		}
+		if *arss == true { fmt.Println(rss) }
 
 		json, err := feed.ToJSON()
 		if err != nil {
 		    log.Fatal(err)
 		}
+		if *ajson == true { fmt.Println(json) }
 
-		fmt.Println(atom, "\n", rss, "\n", json)
 	}
 
 }

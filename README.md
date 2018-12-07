@@ -34,8 +34,13 @@ building:
 
 running: 
 
- ./mailman-summarizer
+ ./mailman-summarizer -h
 
+
+Example Output in https://theoldreader.com
+----------------
+
+![Oldreader](oldreader_output.png)
 
 Sources
 =====
