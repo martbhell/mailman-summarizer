@@ -175,6 +175,7 @@ func main() {
 		// http://www.gorillatoolkit.org/pkg/feeds
 		now := time.Now()
 		// &feeds.Feed{} == ??
+		// TODO: https://validator.w3.org/feed should be valid
 		feed := &feeds.Feed{
 		      Title:       "CEPH-users GW Threads",
 		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
