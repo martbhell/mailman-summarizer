@@ -24,4 +24,7 @@ install:
 script:
 - go build
 deploy:
-- gsutil stat gs://ceph-rgw-users/LICENSE
+- provider: script
+  script: gsutil stat gs://ceph-rgw-users/LICENSE
+  on:
+    branch: master
