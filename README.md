@@ -58,6 +58,8 @@ This repo uses travis and a cronjob to run the script and deploy the XML to goog
  - needs a google cloud project, a service account, a key in json, a key encrypted with travis
  - then needs the gsutil in the travis build env
 
+The URL to the produced feed is: https://storage.googleapis.com/ceph-rgw-users/feed.xml
+
 Sources
 =====
 

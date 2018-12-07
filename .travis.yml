@@ -24,12 +24,12 @@ install:
 script:
 - go build
 deploy:
-# deploy stage cleans up in the repo, so for example stuff done in build phase is removed..
+# deploy stage by default cleans up in the repo, so things produced in for example in build phase is removed.
 #
-#- provider: script
-#  script: bash tools/deploy.sh staging-ceph-rgw-users
-#  on:
-#    branch: master
+- provider: script
+  script: bash tools/deploy.sh staging-ceph-rgw-users
+  on:
+    branch: master
 - provider: script
   script: bash tools/deploy.sh ceph-rgw-users
   on:
