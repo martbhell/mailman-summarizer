@@ -69,7 +69,8 @@ func main() {
 		}
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
-				if strings.Contains(e.Text, "RGW") {
+				// TODO: make an argument
+				if strings.Contains(e.Text, "GW") {
 					// only save last link for a thread
 					// TODO: save all?
 					// parentthread is at this point in time the full URL to the thread.html for this month
@@ -114,6 +115,7 @@ func main() {
 // from demo, used to print which URL our scraper visits
 	})
 
+	// TODO: make an argument
 	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
 
 
@@ -165,9 +167,9 @@ func main() {
 		now := time.Now()
 		// &feeds.Feed{} == ??
 		feed := &feeds.Feed{
-		      Title:       "mailman-summarizer",
-		      Link:        &feeds.Link{Href: "https://guldmyr.com/blog"},
-		      Description: "discussion about tech",
+		      Title:       "CEPH-users GW Threads",
+		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
+		      Description: "Threads from ceph-users CEPH mailing lists with GW in the title. Generated with https://github.com/martbhell/mailman-summarizer",
 		      Author:      &feeds.Author{Name: "Johan Guldmyr", Email: "martbhell+mailman@gmail.com"},
 		      Created:     now,
 		}
@@ -176,6 +178,14 @@ func main() {
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (num of elements)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
+			// earlier we turned it into the above string, for feeds Created/Updated fields it needs to be time.Time again..
+			dateofthreadsinTime, _ := time.Parse("2006-01-02 15:04:05 -0700 MST", keys[o])
+			// for the current month we set the PubDate field to when the script was run
+			updatedfield := dateofthreadsinTime
+			if dateofthreadsinTime.Month() == now.Month() {
+				updatedfield = now
+			}
+
 
 		        thelinks := ""
 			for k, _ := range data[keys[o]] {
@@ -188,11 +198,11 @@ func main() {
 
 				// TODO: Created/Updated could be set to 1st of each month for previous months
 				//  	and time.Now() for current month. Maybe this would update the RSS feed?
-                                    Title:       "CEPH Threads for " + keys[o],
-                                    Link:        &feeds.Link{Href: "https://guldmyr.com/"},
+                                    Title:       "CEPH GW Threads for " + keys[o],
+				    Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
                                     Description: thelinks,
 				    Author:      &feeds.Author{Name: "CEPH Community", Email: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
-                                    Created:     now,
+				    Updated:     updatedfield,
                                 },
 
 			)
