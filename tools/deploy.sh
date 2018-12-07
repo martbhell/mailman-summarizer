@@ -8,10 +8,7 @@ fi
 
 echo "deploying to BUCKET: $BUCKET"
 gsutil stat gs://$BUCKET/LICENSE
-cd $HOME
-echo "PWD: $PWD"
-find . -name mailman-summarizer
-mailman-summarizer -rss > feed.xml
+go run crawler.go -rss > feed.xml
 ls -l
 gsutil cp -a public-read feed.xml gs://$BUCKET/feed.xml
 
