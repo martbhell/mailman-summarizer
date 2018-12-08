@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"sort"
-	"strings"
+	"strings" // for doing strings.Contains()
 	"time"
 	"flag" // for CLI parsing
 	"log" // nice logger
 	"strconv" // convert Int to String
 
-	"github.com/PuerkitoBio/goquery" // for scraping
 	"github.com/gocolly/colly" // for scraping
 	"github.com/gorilla/feeds" // making RSS
 )
@@ -36,29 +35,6 @@ func main() {
 	// https://stackoverflow.com/questions/44305617/nested-maps-in-golang
 	// in python this would look like data["November-2018"]["ceph-users title"] = "http://link.to.thread"
 	data := make(map[string]map[string]string)
-
-	// Callback for when a scraped page contains an article element
-	c.OnHTML("article", func(e *colly.HTMLElement) {
-		isEmojiPage := false
-
-		// Extract meta tags from the document
-		e.DOM.ParentsUntil("~").Find("meta").Each(func(_ int, s *goquery.Selection) {
-			// Search for og:type meta tags
-			if property, _ := s.Attr("property"); strings.EqualFold(property, "og:type") {
-				content, _ := s.Attr("content")
-
-				// Emoji pages have "article" as their og:type
-				isEmojiPage = strings.EqualFold(content, "article")
-			}
-		})
-
-		if isEmojiPage {
-			// Find the emoji page title
-			fmt.Println("Emoji: ", e.DOM.Find("h1").Text())
-			// Grab all the text from the emoji's description
-			fmt.Println("Description: ", e.DOM.Find(".description").Find("p").Text())
-		}
-	})
 
 	parentthread := ""
 	// Callback for links on scraped pages
