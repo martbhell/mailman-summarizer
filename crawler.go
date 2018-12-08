@@ -127,6 +127,6 @@ func main() {
 	}
 	sort.Strings(keys)
 
-	makeRSS(keys, data, arss, ajson, aatom)
+	makeRSS(keys, data, topic, arss, ajson, aatom)
 
 }

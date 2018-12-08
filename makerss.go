@@ -10,7 +10,7 @@ import (
 
 )
 
-func makeRSS(keys []string, data map[string]map[string]string, arss *bool, ajson *bool, aatom *bool) {
+func makeRSS(keys []string, data map[string]map[string]string, topic string, arss *bool, ajson *bool, aatom *bool) {
 
 	// keys = list of months
 	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
@@ -41,7 +41,7 @@ func makeRSS(keys []string, data map[string]map[string]string, arss *bool, ajson
 		feed := &feeds.Feed{
 		      Title:       "CEPH-users GW Threads",
 		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
-		      Description: "Threads from ceph-users CEPH mailing lists with GW in the title. Generated with https://github.com/martbhell/mailman-summarizer",
+		      Description: "Threads from ceph-users CEPH mailing lists with " + topic + " in the title. Generated with https://github.com/martbhell/mailman-summarizer",
 		      Created:     now,
 		}
 
@@ -70,7 +70,7 @@ func makeRSS(keys []string, data map[string]map[string]string, arss *bool, ajson
 			}
 			// Do an Add() instead of defining Items every Month
 			feed.Add(&feeds.Item{
-                                    Title:       "CEPH GW Threads for " + keys[o],
+                                    Title:       "CEPH Threads for " + keys[o],
 				    Link:        &feeds.Link{Href: "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid},
 				    Id:		 "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid,
                                     Description: thelinks,
