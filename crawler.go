@@ -156,6 +156,17 @@ func main() {
 	}
 	sort.Strings(keys)
 
+	makeRSS(keys, data, arss, ajson, aatom)
+
+}
+
+
+func makeRSS(keys []string, data map[string]map[string]string, arss *bool, ajson *bool, aatom *bool) {
+
+	// keys = list of months
+	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
+	// then some flags to control output
+
 	// 03 Make HTML
 	// bool vs *bool vs &bool
 	if *arss == false && *ajson == false && *aatom == false {
