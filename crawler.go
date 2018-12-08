@@ -22,8 +22,10 @@ func main() {
         ajson := flag.Bool("json", false, "Set if you want JSON output instead of HTML")
         aatom := flag.Bool("atom", false, "Set if you want Atom output instead of HTML")
 	var topic string
-	flag.StringVar(&topic, "topic", "GW", "a string which the thread topic must contain")
+	flag.StringVar(&topic, "topic", "GW", "a comma separated list of strings which the thread topic must contain")
         flag.Parse()
+
+	topicsplit := (strings.Split(topic, ","))
 
 	// order matters between these!
 	// 01 first we scrape a website
@@ -74,31 +76,35 @@ func main() {
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
 				// topic is an argument, defaults to "GW"
-				if strings.Contains(e.Text, topic) {
-					// parentthread is at this point in time the full URL to the thread.html for this month
-					// we split out yearmonth so we get: "2018-November"
-		                        yearmonth := (strings.Split(parentthread, "/")[0])
-					// we get two values from time.Parse(). The _ is where we put the second value
-					// parsedmonth should look like: 2018-11-01 00:00:00 +0000 UTC
-					parsedmonth, _ := time.Parse("2006-January", yearmonth)
+				for a, _ := range topicsplit {
+					// note how when we range, "a" is the number of the element, so 0, 1, etc
+					if strings.Contains(e.Text, topicsplit[a]) {
+						// parentthread is at this point in time the full URL to the thread.html for this month
+						// we split out yearmonth so we get: "2018-November"
+					        yearmonth := (strings.Split(parentthread, "/")[0])
+						// we get two values from time.Parse(). The _ is where we put the second value
+						// parsedmonth should look like: 2018-11-01 00:00:00 +0000 UTC
+						parsedmonth, _ := time.Parse("2006-January", yearmonth)
 
-					fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + yearmonth + "/" + lastlink
-					// key in the map of maps is the string of parsedmonth
-					datakey := parsedmonth.String()
-					// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
-					// only save the link if it's empty (we should link to the first e-mail in the thread)
-					if data[datakey] == nil { data[datakey] = map[string]string{} }
-					if data[datakey][e.Text] == "" {
-						data[datakey][e.Text] = fulllinktothethread
+						fulllinktothethread := "http://lists.ceph.com/pipermail/ceph-users-ceph.com/" + yearmonth + "/" + lastlink
+						// key in the map of maps is the string of parsedmonth
+						datakey := parsedmonth.String()
+						// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
+						// only save the link if it's empty (we should link to the first e-mail in the thread)
+						if data[datakey] == nil { data[datakey] = map[string]string{} }
+						if data[datakey][e.Text] == "" {
+							data[datakey][e.Text] = fulllinktothethread
+						}
 					}
 				}
 			}
 		}
-			// Because this was made in 2018 wanted to also have 2017 in the entries.
+			// Because this script was made in 2018 wanted to also have 2017 in the entries.
 			//  But don't want to delete entries when a year changes.
-			//  so we loop over the years and only visit if all the entries in a list
+			//  so we loop over the years and only visit the last x years starting from 2017
 			// golang does not have a range() like php/python apparently https://stackoverflow.com/questions/39868029/how-to-generate-a-sequence-of-numbers-in-golang
 			thisyear := time.Now().Year()
+			// apparently (above stackoverflow) this way is only good for a small range.. is this small?
 			listofyears := []int{2017, thisyear}
 			for q, _ := range listofyears {
 				yearstring := strconv.Itoa(listofyears[q])
@@ -143,18 +149,12 @@ func main() {
 
 	// https://stackoverflow.com/questions/1841443/iterating-over-all-the-keys-of-a-map
 	// https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys
-	// First iterate over keys and put them in a list and then sort them
+	// First iterate over the keys (2018-November) in the data map, put them in a list and then sort them
 	keys := make([]string, 0, len(data))
 	for l, _ := range data {
 		keys = append(keys, l)
 	}
 	sort.Strings(keys)
-	// debug:
-	// 	fmt.Println(keys)
-	// 	for n, _ := range keys { fmt.Println(data[keys[n]]) }
-	// Now we have a sorted list called keys. It's sorted on the Thread Names. Would be nicer with sorted on the URL and the date..
-	// data structure:
-	// data = { 2018-November: { thread1: link1, thread2: link2, .. }, 2018-October: { thread3: link3, .. }, .. }
 
 	// 03 Make HTML
 	// bool vs *bool vs &bool
@@ -173,8 +173,7 @@ func main() {
 		}
 	} else {
 
-	// 04 Make RSS
-	// if *arss == true {
+	// 04 Make RSS, ATOM or JSON
 		// https://github.com/gorilla/feeds
 		// http://www.gorillatoolkit.org/pkg/feeds
 		now := time.Now()
