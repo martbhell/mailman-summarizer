@@ -27,6 +27,6 @@ if [ $NUMCHANGEDLINES -gt 0 ]; then
 	echo "DEPLOY: uploading feed.xml publicly to $BUCKET"
 	gsutil cp -a public-read feed.xml gs://$BUCKET/feed.xml
 else
-	echo "NOT DEPLOYING: $NUMCHANGEDLINES in the feed.xml"
+	echo "NOT DEPLOYING: $NUMCHANGEDLINES changes in the feed.xml"
 fi
 
