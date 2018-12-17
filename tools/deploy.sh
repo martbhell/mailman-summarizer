@@ -10,7 +10,7 @@ echo "TEST: deploying to BUCKET: $BUCKET"
 gsutil stat gs://$BUCKET/feed.xml
 
 echo "TEST: fetching feed.xml before compiling and putting it in /tmp/feed2.xml"
-wget https://storage.googleapis.com/ceph-rgw-users/feed.xml -O /tmp/feed2.xml
+wget https://storage.googleapis.com/$BUCKET/feed.xml -O /tmp/feed2.xml
 
 # https://stackoverflow.com/questions/28081486/how-can-i-go-run-a-project-with-multiple-files-in-the-main-package
 # go run all except *_test.go files (handy when we get around to add testing :)
