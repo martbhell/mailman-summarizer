@@ -76,3 +76,12 @@ Started as a fork of colly-example.
 
 https://github.com/PuerkitoBio/goquery
 https://github.com/gocolly/colly
+
+TODOs
+======
+
+Scattered all over the source code.
+
+Also: wouldn't it be fun with a favicon in the feed? =) =)
+
+https://snook.ca/archives/rss/add_logo_to_feed
