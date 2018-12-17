@@ -126,6 +126,7 @@ func main() {
 		keys = append(keys, l)
 	}
 	sort.Strings(keys)
+	// TODO: Also sort the list of threads
 
 	makeRSS(keys, data, topic, arss, ajson, aatom)
 
