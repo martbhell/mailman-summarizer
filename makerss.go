@@ -26,7 +26,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
 			fmt.Println("<h1>" + keys[o] + "</h1>")
 
-
+			// TODO: this piece is copy pastad below. Make a function?
 			// then we want to make a sorted list of all the threads for this month
 			keysofthreads := make([]string, 0, len(data[keys[o]]))
 			// then we loop over data and append the
@@ -79,12 +79,22 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			//   TODO: best would probably be to just link to the thread.html for that month in the mailing list web archive
 			guid := strconv.FormatInt(updatedfield.Unix(), 16)
 
+			// TODO: sorting thread titles is copy pastad from the above "Make HTML" 03. Make a function or maybe get it from crawler too?
+			// then we want to make a sorted list of all the threads for this month
+			keysofthreads := make([]string, 0, len(data[keys[o]]))
+			// then we loop over data and append the
+			for m, _ := range data[keys[o]] {
+			        keysofthreads = append(keysofthreads, m)
+			}
+			// then we sort that list
+			sort.Strings(keysofthreads)
+
 			// thelinks is some HTML with the threads we want to display
 		        thelinks := ""
-			for k, _ := range data[keys[o]] {
-				thelinks = thelinks + "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
-				// k == thread title
-				// data[o][k] == thread full URL
+			for k, _ := range keysofthreads {
+				thelinks = thelinks + "<a href='" + data[keys[o]][keysofthreads[k]] + "'>" + keysofthreads[k] + "</a><br>"
+				// data[keys[o]][keysofthreads[k]] == thread full URL
+				// keysofthreads[k] == thread title
 			}
 			// Do an Add() instead of defining Items every Month
 			feed.Add(&feeds.Item{
