@@ -53,6 +53,7 @@ func main() {
 				// topic is an argument, defaults to "GW"
 				for a, _ := range topicsplit {
 					// note how when we range, "a" is the number of the element, so 0, 1, etc
+					// TODO: case insensitive comparing: https://stackoverflow.com/questions/24836044/case-insensitive-string-search-in-golang
 					if strings.Contains(e.Text, topicsplit[a]) {
 						// parentthread is at this point in time the full URL to the thread.html for this month
 						// we split out yearmonth so we get: "2018-November"
@@ -126,7 +127,6 @@ func main() {
 		keys = append(keys, l)
 	}
 	sort.Strings(keys)
-	// TODO: Also sort the list of threads
 
 	makeRSS(keys, data, topic, arss, ajson, aatom)
 

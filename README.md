@@ -42,6 +42,12 @@ running:
 <pre>
 
  ./mailman-summarizer -h
+
+</pre>
+
+Because we use case sensitive operations when doing string comparisons or sorting lists you have to manually:
+<pre>
+ ./mailman-summarizer -topic GW,S3,keystone,civet,gw,s3
 </pre>
 
 

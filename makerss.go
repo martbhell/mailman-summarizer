@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/feeds" // making RSS
 	"log"
 	"strconv"
+	"sort" // for sorting threads
 
 )
 
@@ -24,10 +25,27 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// o == 0,1,2 etc (index of element)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
 			fmt.Println("<h1>" + keys[o] + "</h1>")
-			for k, _ := range data[keys[o]] {
-				aHREF := "<a href='" + data[keys[o]][k] + "'>" + k + "</a><br>"
-				// k == thread title
-				// data[o][k] == thread full URL
+
+
+			// then we want to make a sorted list of all the threads for this month
+			keysofthreads := make([]string, 0, len(data[keys[o]]))
+			// then we loop over data and append the
+			for m, _ := range data[keys[o]] {
+			        keysofthreads = append(keysofthreads, m)
+			}
+			// then we sort that list
+			sort.Strings(keysofthreads)
+			// then we loop over that list which is now sorted
+			// note how this is case sensitive sorting https://blog.thecodeteam.com/2017/10/24/go-highly-performant-case-insensitive-string-sort/
+			// meaning special chars like " ", and RGW comes before rgw.
+			for k, _ := range keysofthreads {
+				aHREF := "<a href='" + data[keys[o]][keysofthreads[k]] + "'>" + keysofthreads[k] + "</a><br>"
+				// man this is loopety loopy. Sorry in advance buddy
+				// data[keys[o]][keysofthreads[k]] == thread full URL
+				// keysofthreads[k] == thread title
+				// keys has all the months in a sorted list
+				//   data has the data of all months
+				//   then we want the month: keys[o]
 				fmt.Print(aHREF)
 			}
 		}
@@ -39,7 +57,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 		now := time.Now()
 		// &feeds.Feed{} == ??
 		feed := &feeds.Feed{
-		      Title:       "CEPH-users GW Threads",
+		      Title:       "CEPH-users Filtered Threads",
 		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
 		      Description: "Threads from ceph-users CEPH mailing lists with " + topic + " in the title. Generated with https://github.com/martbhell/mailman-summarizer",
 		      Created:     now,
