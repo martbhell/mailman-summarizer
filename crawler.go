@@ -8,6 +8,7 @@ import (
 	"strconv" // convert Int to String
 
 	"github.com/gocolly/colly" // for scraping
+	// "fmt" // debug..
 )
 
 
@@ -50,7 +51,7 @@ func main() {
 		}
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
-				// topic is an argument, defaults to "GW"
+				// topicsplit is an argument of strings we are interested in, defaults to "GW"
 				for a, _ := range topicsplit {
 					// note how when we range, "a" is the number of the element, so 0, 1, etc
 					// TODO: case insensitive comparing: https://stackoverflow.com/questions/24836044/case-insensitive-string-search-in-golang
@@ -79,9 +80,16 @@ func main() {
 			//  But don't want to delete entries when a year changes.
 			//  so we loop over the years and only visit the last x years starting from 2017
 			// golang does not have a range() like php/python apparently https://stackoverflow.com/questions/39868029/how-to-generate-a-sequence-of-numbers-in-golang
+			// https://www.reddit.com/r/golang/comments/4rinrk/how_do_you_create_an_array_of_variable_length/ was helpful
 			thisyear := time.Now().Year()
-			// apparently (above stackoverflow) this way is only good for a small range.. is this small?
-			listofyears := []int{2017, thisyear}
+			// listofyears := make([]int, thisyear)
+			// ^^ means we predefine a slice with [ 0 00 0  00  00 0  0 0 .. all 2019 zeros ] then the for loop below would in 2019 change the last three to 2017 2018 2019
+			var listofyears []int
+			// ^^ means we just make a list of ints - not good memory wise or something?
+			for y := 2017; y <= thisyear; y++ {
+				listofyears = append(listofyears, y)
+			}
+
 			for q, _ := range listofyears {
 				yearstring := strconv.Itoa(listofyears[q])
 				if strings.Contains(link, yearstring) {
