@@ -1,28 +1,27 @@
 package main
 
 import (
+	"flag" // for CLI parsing
 	"sort"
+	"strconv" // convert Int to String
 	"strings" // for doing strings.Contains()
 	"time"
-	"flag" // for CLI parsing
-	"strconv" // convert Int to String
 
 	"github.com/gocolly/colly" // for scraping
 	// "fmt" // debug..
 )
 
-
 func main() {
 
 	// 1. parses a website 2. at the end calls makeRSS() which prints stuff to stdout
 
-        // CLI parsing: https://gobyexample.com/command-line-flags
-        arss := flag.Bool("rss", false, "Set if you want RSS output instead of HTML")
-        ajson := flag.Bool("json", false, "Set if you want JSON output instead of HTML")
-        aatom := flag.Bool("atom", false, "Set if you want Atom output instead of HTML")
+	// CLI parsing: https://gobyexample.com/command-line-flags
+	arss := flag.Bool("rss", false, "Set if you want RSS output instead of HTML")
+	ajson := flag.Bool("json", false, "Set if you want JSON output instead of HTML")
+	aatom := flag.Bool("atom", false, "Set if you want Atom output instead of HTML")
 	var topic string
 	flag.StringVar(&topic, "topic", "GW", "a comma separated list of strings which the thread topic must contain")
-        flag.Parse()
+	flag.Parse()
 
 	topicsplit := (strings.Split(topic, ","))
 
@@ -58,7 +57,7 @@ func main() {
 					if strings.Contains(e.Text, topicsplit[a]) {
 						// parentthread is at this point in time the full URL to the thread.html for this month
 						// we split out yearmonth so we get: "2018-November"
-					        yearmonth := (strings.Split(parentthread, "/")[0])
+						yearmonth := (strings.Split(parentthread, "/")[0])
 						// we get two values from time.Parse(). The _ is where we put the second value
 						// parsedmonth should look like: 2018-11-01 00:00:00 +0000 UTC
 						parsedmonth, _ := time.Parse("2006-January", yearmonth)
@@ -68,7 +67,9 @@ func main() {
 						datakey := parsedmonth.String()
 						// maps has to be fully initialized or we get a runtime error - if it's nil and if so initialize it
 						// only save the link if it's empty (we should link to the first e-mail in the thread)
-						if data[datakey] == nil { data[datakey] = map[string]string{} }
+						if data[datakey] == nil {
+							data[datakey] = map[string]string{}
+						}
 						if data[datakey][e.Text] == "" {
 							data[datakey][e.Text] = fulllinktothethread
 						}
@@ -76,35 +77,35 @@ func main() {
 				}
 			}
 		}
-			// Because this script was made in 2018 wanted to also have 2017 in the entries.
-			//  But don't want to delete entries when a year changes.
-			//  so we loop over the years and only visit the last x years starting from 2017
-			// golang does not have a range() like php/python apparently https://stackoverflow.com/questions/39868029/how-to-generate-a-sequence-of-numbers-in-golang
-			// https://www.reddit.com/r/golang/comments/4rinrk/how_do_you_create_an_array_of_variable_length/ was helpful
-			thisyear := time.Now().Year()
-			// listofyears := make([]int, thisyear)
-			// ^^ means we predefine a slice with [ 0 00 0  00  00 0  0 0 .. all 2019 zeros ] then the for loop below would in 2019 change the last three to 2017 2018 2019
-			var listofyears []int
-			// ^^ means we just make a list of ints - not good memory wise or something?
-			for y := 2017; y <= thisyear; y++ {
-				listofyears = append(listofyears, y)
-			}
+		// Because this script was made in 2018 wanted to also have 2017 in the entries.
+		//  But don't want to delete entries when a year changes.
+		//  so we loop over the years and only visit the last x years starting from 2017
+		// golang does not have a range() like php/python apparently https://stackoverflow.com/questions/39868029/how-to-generate-a-sequence-of-numbers-in-golang
+		// https://www.reddit.com/r/golang/comments/4rinrk/how_do_you_create_an_array_of_variable_length/ was helpful
+		thisyear := time.Now().Year()
+		// listofyears := make([]int, thisyear)
+		// ^^ means we predefine a slice with [ 0 00 0  00  00 0  0 0 .. all 2019 zeros ] then the for loop below would in 2019 change the last three to 2017 2018 2019
+		var listofyears []int
+		// ^^ means we just make a list of ints - not good memory wise or something?
+		for y := 2017; y <= thisyear; y++ {
+			listofyears = append(listofyears, y)
+		}
 
-			for q := range listofyears {
-				yearstring := strconv.Itoa(listofyears[q])
-				if strings.Contains(link, yearstring) {
-					// Only Thread (from list of Months page): http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
-					// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
-					if strings.Contains(e.Text, "[ Thread ]") {
-						c.Visit(e.Request.AbsoluteURL(link))
-					}
+		for q := range listofyears {
+			yearstring := strconv.Itoa(listofyears[q])
+			if strings.Contains(link, yearstring) {
+				// Only Thread (from list of Months page): http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
+				// https://stackoverflow.com/questions/45266784/go-test-string-contains-substring
+				if strings.Contains(e.Text, "[ Thread ]") {
+					c.Visit(e.Request.AbsoluteURL(link))
 				}
 			}
+		}
 	})
 
 	c.OnHTML("title", func(e *colly.HTMLElement) {
-	    // fmt.Println(e.Text)
-	    // used to print the HTML <title>
+		// fmt.Println(e.Text)
+		// used to print the HTML <title>
 	})
 
 	// This piece adds delay so we are being nice on the Internet
@@ -121,10 +122,9 @@ func main() {
 	// TODO: make an argument
 	c.Visit("http://lists.ceph.com/pipermail/ceph-users-ceph.com/")
 
+	// 02 Loop over the data
 
-	// 02 Loop over the data 
-
-        // Data structure:
+	// Data structure:
 	// data = { "2018-November": { "thread1": "link1", "thread2": "link2", .. }, "2018-October": { "thread3": "link3", .. }, .. }
 
 	// https://stackoverflow.com/questions/1841443/iterating-over-all-the-keys-of-a-map

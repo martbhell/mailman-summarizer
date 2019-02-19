@@ -1,14 +1,12 @@
 package main
 
 import (
-
 	"fmt"
-	"time"
 	"github.com/gorilla/feeds" // making RSS
 	"log"
-	"strconv"
 	"sort" // for sorting threads
-
+	"strconv"
+	"time"
 )
 
 func makeRSS(keys []string, data map[string]map[string]string, topic string, arss *bool, ajson *bool, aatom *bool) {
@@ -31,7 +29,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			keysofthreads := make([]string, 0, len(data[keys[o]]))
 			// then we loop over data and append the
 			for m := range data[keys[o]] {
-			        keysofthreads = append(keysofthreads, m)
+				keysofthreads = append(keysofthreads, m)
 			}
 			// then we sort that list
 			sort.Strings(keysofthreads)
@@ -51,16 +49,16 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 		}
 	} else {
 
-	// 04 Make RSS, ATOM or JSON
+		// 04 Make RSS, ATOM or JSON
 		// https://github.com/gorilla/feeds
 		// http://www.gorillatoolkit.org/pkg/feeds
 		now := time.Now()
 		// &feeds.Feed{} == ??
 		feed := &feeds.Feed{
-		      Title:       "CEPH-users Filtered Threads",
-		      Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
-		      Description: "Threads from ceph-users CEPH mailing lists with " + topic + " in the title. Generated with https://github.com/martbhell/mailman-summarizer",
-		      Created:     now,
+			Title:       "CEPH-users Filtered Threads",
+			Link:        &feeds.Link{Href: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
+			Description: "Threads from ceph-users CEPH mailing lists with " + topic + " in the title. Generated with https://github.com/martbhell/mailman-summarizer",
+			Created:     now,
 		}
 
 		for o := range keys {
@@ -84,13 +82,13 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			keysofthreads := make([]string, 0, len(data[keys[o]]))
 			// then we loop over data and append the
 			for m := range data[keys[o]] {
-			        keysofthreads = append(keysofthreads, m)
+				keysofthreads = append(keysofthreads, m)
 			}
 			// then we sort that list
 			sort.Strings(keysofthreads)
 
 			// thelinks is some HTML with the threads we want to display
-		        thelinks := ""
+			thelinks := ""
 			for k := range keysofthreads {
 				thelinks = thelinks + "<a href='" + data[keys[o]][keysofthreads[k]] + "'>" + keysofthreads[k] + "</a><br>"
 				// data[keys[o]][keysofthreads[k]] == thread full URL
@@ -98,35 +96,40 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			}
 			// Do an Add() instead of defining Items every Month
 			feed.Add(&feeds.Item{
-                                    Title:       "CEPH Threads for " + keys[o],
-				    Link:        &feeds.Link{Href: "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid},
-				    Id:		 "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid,
-                                    Description: thelinks,
-				    Author:      &feeds.Author{Name: "ceph-users@lists.ceph.com (CEPH Users Mailing List)", Email: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
-				    Updated:     updatedfield,
-                                },
-
+				Title:       "CEPH Threads for " + keys[o],
+				Link:        &feeds.Link{Href: "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid},
+				Id:          "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid,
+				Description: thelinks,
+				Author:      &feeds.Author{Name: "ceph-users@lists.ceph.com (CEPH Users Mailing List)", Email: "http://lists.ceph.com/pipermail/ceph-users-ceph.com/"},
+				Updated:     updatedfield,
+			},
 			)
 		}
 
 		atom, err := feed.ToAtom()
 		if err != nil {
-		    log.Fatal(err)
+			log.Fatal(err)
 		}
 		// aatom, arss and ajson are CLI arguments to the executable
-		if *aatom == true { fmt.Println(atom) }
+		if *aatom == true {
+			fmt.Println(atom)
+		}
 
 		rss, err := feed.ToRss()
 		if err != nil {
-		    log.Fatal(err)
+			log.Fatal(err)
 		}
-		if *arss == true { fmt.Println(rss) }
+		if *arss == true {
+			fmt.Println(rss)
+		}
 
 		json, err := feed.ToJSON()
 		if err != nil {
-		    log.Fatal(err)
+			log.Fatal(err)
 		}
-		if *ajson == true { fmt.Println(json) }
+		if *ajson == true {
+			fmt.Println(json)
+		}
 
 	}
 
