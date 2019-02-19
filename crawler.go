@@ -52,7 +52,7 @@ func main() {
 		if strings.ContainsAny(lastlink, "0123456789") {
 			if strings.Contains(lastlink, ".html") {
 				// topicsplit is an argument of strings we are interested in, defaults to "GW"
-				for a, _ := range topicsplit {
+				for a := range topicsplit {
 					// note how when we range, "a" is the number of the element, so 0, 1, etc
 					// TODO: case insensitive comparing: https://stackoverflow.com/questions/24836044/case-insensitive-string-search-in-golang
 					if strings.Contains(e.Text, topicsplit[a]) {
@@ -90,7 +90,7 @@ func main() {
 				listofyears = append(listofyears, y)
 			}
 
-			for q, _ := range listofyears {
+			for q := range listofyears {
 				yearstring := strconv.Itoa(listofyears[q])
 				if strings.Contains(link, yearstring) {
 					// Only Thread (from list of Months page): http://lists.ceph.com/pipermail/ceph-users-ceph.com/2018-November/thread.html
@@ -131,7 +131,7 @@ func main() {
 	// https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys
 	// First iterate over the keys (2018-November) in the data map, put them in a list and then sort them
 	keys := make([]string, 0, len(data))
-	for l, _ := range data {
+	for l := range data {
 		keys = append(keys, l)
 	}
 	sort.Strings(keys)

@@ -20,7 +20,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 	// 03 Make HTML
 	// bool vs *bool vs &bool
 	if *arss == false && *ajson == false && *aatom == false {
-		for o, _ := range keys {
+		for o := range keys {
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (index of element)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
@@ -30,7 +30,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// then we want to make a sorted list of all the threads for this month
 			keysofthreads := make([]string, 0, len(data[keys[o]]))
 			// then we loop over data and append the
-			for m, _ := range data[keys[o]] {
+			for m := range data[keys[o]] {
 			        keysofthreads = append(keysofthreads, m)
 			}
 			// then we sort that list
@@ -38,7 +38,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// then we loop over that list which is now sorted
 			// note how this is case sensitive sorting https://blog.thecodeteam.com/2017/10/24/go-highly-performant-case-insensitive-string-sort/
 			// meaning special chars like " ", and RGW comes before rgw.
-			for k, _ := range keysofthreads {
+			for k := range keysofthreads {
 				aHREF := "<a href='" + data[keys[o]][keysofthreads[k]] + "'>" + keysofthreads[k] + "</a><br>"
 				// man this is loopety loopy. Sorry in advance buddy
 				// data[keys[o]][keysofthreads[k]] == thread full URL
@@ -63,7 +63,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 		      Created:     now,
 		}
 
-		for o, _ := range keys {
+		for o := range keys {
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (num of elements)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
@@ -83,7 +83,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// then we want to make a sorted list of all the threads for this month
 			keysofthreads := make([]string, 0, len(data[keys[o]]))
 			// then we loop over data and append the
-			for m, _ := range data[keys[o]] {
+			for m := range data[keys[o]] {
 			        keysofthreads = append(keysofthreads, m)
 			}
 			// then we sort that list
@@ -91,7 +91,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 
 			// thelinks is some HTML with the threads we want to display
 		        thelinks := ""
-			for k, _ := range keysofthreads {
+			for k := range keysofthreads {
 				thelinks = thelinks + "<a href='" + data[keys[o]][keysofthreads[k]] + "'>" + keysofthreads[k] + "</a><br>"
 				// data[keys[o]][keysofthreads[k]] == thread full URL
 				// keysofthreads[k] == thread title
