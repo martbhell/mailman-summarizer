@@ -67,8 +67,13 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
 			// earlier we turned it into the above string, for feeds Created/Updated fields it needs to be time.Time again..
 			dateofthreadsinTime, _ := time.Parse("2006-01-02 15:04:05 -0700 MST", keys[o])
-			// for the current month we set the PubDate field to when the script was run
-			updatedfield := dateofthreadsinTime
+			// usually we set PubDate field to the last day of the month and 23h and some minutes
+			updatedfield := dateofthreadsinTime.AddDate(0,1,-1).Add(time.Hour * 23 + time.Minute * 58 )
+
+			// except for the current month we set the PubDate field to when the script was run
+			// before we set the time to first of the month
+			// idea is that by setting it to last of the month, when we first run in "next month" it will increase the PubDate for last month and that would get an update in some clients too
+			// Hello Johan if you are reading this again, did it work? :)
 			if dateofthreadsinTime.Month() == now.Month() && dateofthreadsinTime.Year() == now.Year() {
 				updatedfield = now
 			}
