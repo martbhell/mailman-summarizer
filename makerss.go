@@ -65,15 +65,15 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			// keys is a sorted list of keys of data
 			// o == 0,1,2 etc (num of elements)
 			// keys[o] == "2018-11-01 00:00:00 +0000 UTC" etc, each month
-			// earlier we turned it into the above string, for feeds Created/Updated fields it needs to be time.Time again..
+			// Earlier we turned it into the above string, for feeds Created/Updated fields it needs to be time.Time again..
 			dateofthreadsinTime, _ := time.Parse("2006-01-02 15:04:05 -0700 MST", keys[o])
-			// usually we set PubDate field to the last day of the month and 23h and some minutes
+			// Usually we set PubDate field to the last day of the month and 23h and some minutes
 			updatedfield := dateofthreadsinTime.AddDate(0,1,-1).Add(time.Hour * 23 + time.Minute * 58 )
 
-			// except for the current month we set the PubDate field to when the script was run
-			// before we set the time to first of the month
-			// idea is that by setting it to last of the month, when we first run in "next month" it will increase the PubDate for last month and that would get an update in some clients too
-			// Hello Johan if you are reading this again, did it work? :)
+			//   Except for the current month we set the PubDate field to when the script was run
+			//   before we set the time to first of the month.
+			//   The idea is that by setting it to last of the month, when we first run in "next month" it will increase the PubDate for last month and that would get an update in some clients too
+			//   Hello Johan if you are reading this again, did it work? :)
 			if dateofthreadsinTime.Month() == now.Month() && dateofthreadsinTime.Year() == now.Year() {
 				updatedfield = now
 			}
@@ -81,6 +81,9 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			//   This is used as a GUID for the item in the RSS feed to make the w3c feed validator happy
 			//   TODO: best would probably be to just link to the thread.html for that month in the mailing list web archive
 			guid := strconv.FormatInt(updatedfield.Unix(), 16)
+
+			// Make a nicer thread title, turn "2018-11-01 00:00:00 +0000 UTC" into "2018 November"
+			dateintitle := dateofthreadsinTime.Format("2006 January")
 
 			// TODO: sorting thread titles is copy pastad from the above "Make HTML" 03. Make a function or maybe get it from crawler too?
 			// then we want to make a sorted list of all the threads for this month
@@ -101,7 +104,7 @@ func makeRSS(keys []string, data map[string]map[string]string, topic string, ars
 			}
 			// Do an Add() instead of defining Items every Month
 			feed.Add(&feeds.Item{
-				Title:       "CEPH Threads for " + keys[o],
+				Title:       "CEPH Threads for " + dateintitle,
 				Link:        &feeds.Link{Href: "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid},
 				Id:          "https://storage.googleapis.com/ceph-rgw-users/feed.xml?guid=" + guid,
 				Description: thelinks,
